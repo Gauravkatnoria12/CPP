@@ -1,0 +1,764 @@
+import { useState, useEffect } from "react";
+import {
+  GraduationCap, FlaskConical, Globe, Briefcase,
+  Trophy, BookOpen, Utensils, Cpu, Music2, Leaf,
+  Scale, Microscope, Building2, Users, TrendingUp,
+  FileText, Handshake, Star, MapPin, Phone, Mail,
+  ChevronDown, ArrowUpRight, Award,
+  Dumbbell, Library, Coffee, Lightbulb, Theater,
+  Facebook, Instagram, Twitter, Linkedin, Youtube,
+  Landmark, Stethoscope, BarChart3, Wheat, Binary,
+  ShieldCheck, Clock
+} from "lucide-react";
+
+/* ─── Global Styles ────────────────────────────────────────────────────────── */
+const GlobalStyles = () => (
+  <style>{`
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink:   #0a0a0f;
+      --white: #f5f2eb;
+      --gold:  #c9a84c;
+      --gold2: #e8c97a;
+      --red:   #b5341e;
+      --muted: #6b6559;
+      --line:  rgba(201,168,76,0.22);
+      --nav-h: 72px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--ink);
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 3px; }
+    ::-webkit-scrollbar-track { background: var(--ink); }
+    ::-webkit-scrollbar-thumb { background: var(--gold); }
+
+    /* ── Noise ── */
+    .noise {
+      position: fixed; inset: 0; opacity: 0.03;
+      pointer-events: none; z-index: 1;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+
+    /* ── Nav ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      height: var(--nav-h);
+      padding: 0 4rem;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid transparent;
+      transition: background .4s, border-color .4s;
+    }
+    nav.scrolled {
+      background: rgba(10,10,15,.94);
+      backdrop-filter: blur(22px);
+      border-bottom-color: var(--line);
+    }
+    .nav-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.05rem; font-weight: 700;
+      color: var(--white); text-decoration: none;
+      letter-spacing: .04em; white-space: nowrap;
+    }
+    .nav-logo span { color: var(--gold); }
+    .nav-links { display: flex; gap: 2.2rem; list-style: none; }
+    .nav-links a {
+      font-family: 'Syne', sans-serif;
+      font-size: .76rem; font-weight: 600;
+      letter-spacing: .14em; text-transform: uppercase;
+      color: var(--white); text-decoration: none;
+      position: relative; padding-bottom: 3px;
+      transition: color .3s;
+    }
+    .nav-links a::after {
+      content: ''; position: absolute; bottom: 0; left: 0;
+      width: 0; height: 1px; background: var(--gold);
+      transition: width .35s ease;
+    }
+    .nav-links a:hover::after { width: 100%; }
+    .nav-links a:hover { color: var(--gold); }
+    .nav-right { display: flex; align-items: center; gap: 1rem; }
+    .nav-cta {
+      font-family: 'Syne', sans-serif;
+      font-size: .74rem; font-weight: 700;
+      letter-spacing: .14em; text-transform: uppercase;
+      background: var(--gold); color: var(--ink);
+      border: none; padding: .6rem 1.5rem;
+      cursor: pointer; transition: all .3s; white-space: nowrap;
+    }
+    .nav-cta:hover { background: var(--gold2); transform: translateY(-1px); }
+    .hamburger {
+      display: none; background: none; border: none;
+      cursor: pointer; padding: .4rem; flex-direction: column;
+      gap: 6px; align-items: flex-end;
+    }
+    .ham-line {
+      display: block; height: 2px; background: var(--white);
+      border-radius: 2px; transition: all .35s ease;
+    }
+    .ham-line-1 { width: 28px; }
+    .ham-line-2 { width: 20px; }
+    .hamburger:hover .ham-line { background: var(--gold); }
+    .hamburger.active .ham-line-1 { width: 28px; transform: rotate(45deg) translate(5.5px, 5.5px); }
+    .hamburger.active .ham-line-2 { width: 28px; transform: rotate(-45deg) translate(5.5px, -5.5px); }
+    .mobile-menu {
+      display: none; position: fixed;
+      top: var(--nav-h); left: 0; right: 0; bottom: 0;
+      background: rgba(10,10,15,.98);
+      backdrop-filter: blur(30px);
+      z-index: 199; flex-direction: column;
+      align-items: center; justify-content: center; gap: 2.5rem;
+    }
+    .mobile-menu.open { display: flex; }
+    .mobile-menu a {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem; font-weight: 700;
+      color: var(--white); text-decoration: none;
+    }
+    .mobile-menu a:hover { color: var(--gold); }
+
+    /* ── Hero ── */
+    .hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      justify-content: flex-end;
+      padding: calc(var(--nav-h) + 4rem) 4rem 6rem;
+      position: relative; overflow: hidden;
+    }
+    .hero-bg { position: absolute; inset: 0; background: linear-gradient(135deg,#0a0a0f 0%,#111018 45%,#0f0d1a 100%); }
+    .hero-grid {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(var(--line) 1px, transparent 1px),
+        linear-gradient(90deg, var(--line) 1px, transparent 1px);
+      background-size: 80px 80px;
+      mask-image: radial-gradient(ellipse 85% 65% at 50% 50%, black 35%, transparent 100%);
+    }
+    .hero-glow  { position: absolute; width: 700px; height: 700px; border-radius: 50%; background: radial-gradient(circle,rgba(201,168,76,.12) 0%,transparent 70%); top:-220px; right:-180px; animation: gPulse 6s ease-in-out infinite alternate; }
+    .hero-glow2 { position: absolute; width: 500px; height: 500px; border-radius: 50%; background: radial-gradient(circle,rgba(181,52,30,.09) 0%,transparent 70%); bottom:-120px; left:8%;   animation: gPulse 9s ease-in-out infinite alternate-reverse; }
+    @keyframes gPulse { from{transform:scale(1)} to{transform:scale(1.18)} }
+
+    .hero-eyebrow {
+      font-family: 'Syne', sans-serif;
+      font-size: .7rem; font-weight: 700; letter-spacing: .3em; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 1.5rem;
+      display: flex; align-items: center; gap: 1rem;
+      position: relative; z-index: 2;
+      opacity: 0; animation: fadeUp .8s .3s forwards;
+    }
+    .hero-eyebrow::before { content:''; width:36px; height:1px; background:var(--gold); }
+
+    .hero-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(3rem,8vw,8.5rem);
+      font-weight: 900; line-height: .93;
+      position: relative; z-index: 2;
+      opacity: 0; animation: fadeUp .9s .5s forwards;
+    }
+    .hero-title em   { font-style:italic; color:var(--gold); display:block; }
+    .hero-title .out { -webkit-text-stroke:1px var(--white); color:transparent; display:block; }
+
+    .hero-sub {
+      max-width: 480px;
+      font-size: 1rem; font-weight: 300; line-height: 1.75;
+      color: rgba(245,242,235,.6);
+      margin-top: 2rem; position: relative; z-index: 2;
+      opacity: 0; animation: fadeUp .9s .7s forwards;
+    }
+    .hero-actions {
+      display: flex; flex-wrap: wrap; gap: 1.2rem; align-items: center;
+      margin-top: 2.5rem; position: relative; z-index: 2;
+      opacity: 0; animation: fadeUp .9s .9s forwards;
+    }
+    .btn-primary {
+      font-family: 'Syne', sans-serif;
+      font-size: .76rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+      background: var(--gold); color: var(--ink);
+      border: none; padding: .95rem 2.2rem;
+      cursor: pointer; transition: all .3s; text-decoration: none; display: inline-flex; align-items: center; gap: .5rem;
+    }
+    .btn-primary:hover { background:var(--gold2); transform:translateY(-2px); box-shadow:0 12px 40px rgba(201,168,76,.3); }
+    .btn-outline {
+      font-family: 'Syne', sans-serif;
+      font-size: .76rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+      border: 1px solid rgba(245,242,235,.3); color: var(--white);
+      padding: .95rem 2.2rem;
+      cursor: pointer; transition: all .3s; text-decoration: none; display: inline-flex; align-items: center; gap: .5rem;
+    }
+    .btn-outline:hover { border-color:var(--gold); color:var(--gold); }
+
+    .hero-stats {
+      position: absolute; right: 4rem; bottom: 6rem;
+      display: flex; flex-direction: column; gap: 2.2rem;
+      z-index: 2;
+      opacity: 0; animation: fadeLeft .9s 1.1s forwards;
+    }
+    .stat-item  { text-align: right; }
+    .stat-num   { font-family:'Playfair Display',serif; font-size:2.6rem; font-weight:700; color:var(--gold); line-height:1; }
+    .stat-label { font-family:'Syne',sans-serif; font-size:.63rem; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); margin-top:.2rem; }
+    .stat-div   { width:36px; height:1px; background:var(--line); margin-left:auto; margin-top:.4rem; }
+
+    .scroll-hint {
+      position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: .4rem;
+      z-index: 2; opacity: 0; animation: fadeUp 1s 1.6s forwards;
+    }
+    .scroll-line { width:1px; height:56px; background:linear-gradient(to bottom,var(--gold),transparent); animation:sPulse 2.2s ease infinite; }
+    @keyframes sPulse { 0%{transform:scaleY(1);transform-origin:top;opacity:1} 100%{transform:scaleY(0);transform-origin:top;opacity:0} }
+    .scroll-text { font-family:'Syne',sans-serif; font-size:.58rem; letter-spacing:.28em; text-transform:uppercase; color:var(--muted); writing-mode:vertical-lr; }
+
+    @keyframes fadeUp   { from{opacity:0;transform:translateY(28px)} to{opacity:1;transform:none} }
+    @keyframes fadeLeft { from{opacity:0;transform:translateX(28px)} to{opacity:1;transform:none} }
+
+    /* ── Marquee ── */
+    .marquee-wrap { border-top:1px solid var(--line); border-bottom:1px solid var(--line); padding:1.1rem 0; overflow:hidden; background:rgba(201,168,76,.035); }
+    .marquee-track { display:flex; white-space:nowrap; animation:ticker 35s linear infinite; }
+    .marquee-track:hover { animation-play-state:paused; }
+    .marquee-item { font-family:'Syne',sans-serif; font-size:.7rem; font-weight:700; letter-spacing:.24em; text-transform:uppercase; color:var(--muted); padding:0 2.5rem; display:flex; align-items:center; gap:2.5rem; }
+    .marquee-sep { color:var(--gold); display:flex; align-items:center; }
+    @keyframes ticker { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+    /* ── Section commons ── */
+    .section-label {
+      font-family:'Syne',sans-serif; font-size:.66rem; font-weight:700;
+      letter-spacing:.3em; text-transform:uppercase; color:var(--gold);
+      margin-bottom:.9rem; display:flex; align-items:center; gap:.9rem;
+    }
+    .section-label::before { content:''; width:22px; height:1px; background:var(--gold); }
+    .section-title { font-family:'Playfair Display',serif; font-size:clamp(2rem,4vw,3.8rem); font-weight:700; line-height:1.1; }
+    .section-title em { font-style:italic; color:var(--gold); }
+
+    /* ── About ── */
+    .about { padding:8rem 4rem; display:grid; grid-template-columns:1fr 1fr; gap:5rem; align-items:center; }
+    .about-visual { position:relative; height:560px; }
+    .about-img-main {
+      position:absolute; top:0; left:0; width:76%; height:84%;
+      background:linear-gradient(135deg,#1a1720 0%,#0f1520 100%);
+      border:1px solid var(--line); display:flex; align-items:center; justify-content:center; overflow:hidden;
+    }
+    .about-pattern {
+      position:absolute; inset:0; opacity:.07;
+      background-image: repeating-linear-gradient(45deg, var(--gold) 0, var(--gold) 1px, transparent 0, transparent 50%);
+      background-size: 20px 20px;
+    }
+    .about-center-icon { opacity:.18; position:relative; z-index:1; }
+    .about-badge {
+      position:absolute; bottom:36px; right:0;
+      background:var(--gold); color:var(--ink); padding:1.8rem; text-align:center; width:152px;
+    }
+    .about-badge-num  { font-family:'Playfair Display',serif; font-size:2.4rem; font-weight:900; line-height:1; }
+    .about-badge-text { font-family:'Syne',sans-serif; font-size:.58rem; letter-spacing:.14em; text-transform:uppercase; margin-top:.4rem; }
+    .about-text { font-size:1rem; line-height:1.85; color:rgba(245,242,235,.63); margin:1.8rem 0; }
+    .about-features { display:grid; grid-template-columns:1fr 1fr; gap:1.2rem; margin-top:2rem; }
+    .about-feat { padding:1.4rem; border:1px solid var(--line); transition:border-color .3s,background .3s; }
+    .about-feat:hover { border-color:var(--gold); background:rgba(201,168,76,.04); }
+    .about-feat-icon  { color:var(--gold); margin-bottom:.7rem; }
+    .about-feat-title { font-family:'Syne',sans-serif; font-size:.76rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--gold); margin-bottom:.35rem; }
+    .about-feat-text  { font-size:.83rem; color:var(--muted); line-height:1.6; }
+
+    /* ── Programs ── */
+    .programs { padding:8rem 4rem; }
+    .programs-header { display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:3.5rem; border-bottom:1px solid var(--line); padding-bottom:2.5rem; flex-wrap:wrap; gap:1.5rem; }
+    .programs-grid { display:grid; grid-template-columns:repeat(3,1fr); }
+    .program-card { border:1px solid var(--line); padding:2.8rem 2.2rem; position:relative; overflow:hidden; transition:background .4s; cursor:pointer; margin:-1px 0 0 -1px; }
+    .program-card:hover { background:rgba(201,168,76,.05); }
+    .program-card:hover .prog-arrow { transform:translate(4px,-4px); }
+    .prog-icon { color:var(--gold); opacity:.55; margin-bottom:1.4rem; transition:opacity .3s; }
+    .program-card:hover .prog-icon { opacity:1; }
+    .program-title { font-family:'Playfair Display',serif; font-size:1.3rem; font-weight:700; margin-bottom:.85rem; line-height:1.25; }
+    .program-desc  { font-size:.86rem; color:var(--muted); line-height:1.7; margin-bottom:1.8rem; }
+    .program-tags  { display:flex; flex-wrap:wrap; gap:.45rem; margin-bottom:1.8rem; }
+    .program-tag   { font-family:'Syne',sans-serif; font-size:.6rem; letter-spacing:.14em; text-transform:uppercase; color:var(--gold); border:1px solid var(--line); padding:.28rem .75rem; }
+    .prog-arrow    { color:var(--gold); transition:transform .3s; display:inline-block; }
+
+    /* ── Campus ── */
+    .campus { padding:8rem 4rem; background:linear-gradient(to bottom,transparent,rgba(201,168,76,.025),transparent); }
+    .campus-grid { display:grid; grid-template-columns:2fr 1fr 1fr; grid-template-rows:1fr 1fr; gap:1.2rem; margin-top:3.5rem; height:560px; }
+    .campus-card { position:relative; overflow:hidden; border:1px solid var(--line); display:flex; flex-direction:column; justify-content:flex-end; padding:1.8rem; transition:border-color .3s; cursor:pointer; }
+    .campus-card:hover { border-color:var(--gold); }
+    .campus-card:hover .campus-overlay { opacity:.65; }
+    .campus-bg-icon { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; opacity:.05; color:var(--white); }
+    .campus-overlay { position:absolute; inset:0; background:linear-gradient(to top,rgba(10,10,15,.92) 0%,transparent 65%); opacity:.45; transition:opacity .4s; }
+    .campus-card:nth-child(1) { grid-row:span 2; }
+    .campus-card:nth-child(1) .campus-bg-icon { transform:scale(2.2); }
+    .campus-card-title { font-family:'Playfair Display',serif; font-size:1rem; font-weight:700; position:relative; z-index:2; }
+    .campus-card-icon  { color:var(--gold); position:relative; z-index:2; margin-bottom:.5rem; }
+    .campus-card-sub   { font-size:.76rem; color:var(--muted); position:relative; z-index:2; margin-top:.25rem; }
+
+    /* ── Achievements ── */
+    .achievements { padding:8rem 4rem; }
+    .ach-inner { border:1px solid var(--line); padding:4.5rem 3.5rem; background:linear-gradient(135deg,rgba(201,168,76,.04) 0%,transparent 55%); position:relative; overflow:hidden; }
+    .ach-quote-bg { position:absolute; top:-4rem; left:1.5rem; font-family:'Playfair Display',serif; font-size:22rem; line-height:1; color:rgba(201,168,76,.03); pointer-events:none; user-select:none; }
+    .ach-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:2.5rem; margin-top:3.5rem; }
+    .ach-item { text-align:center; }
+    .ach-icon { color:var(--gold); opacity:.5; margin:0 auto .8rem; }
+    .ach-num  { font-family:'Playfair Display',serif; font-size:3.2rem; font-weight:900; color:var(--gold); line-height:1; }
+    .ach-label{ font-family:'Syne',sans-serif; font-size:.64rem; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); margin-top:.45rem; }
+    .ach-div  { width:28px; height:2px; background:var(--gold); margin:.65rem auto 0; }
+
+    /* ── Testimonials ── */
+    .testimonials { padding:8rem 4rem; overflow:hidden; }
+    .testi-header { margin-bottom:3.5rem; }
+    .testi-track { display:flex; gap:1.8rem; animation:scroll 42s linear infinite; }
+    .testi-track:hover { animation-play-state:paused; }
+    @keyframes scroll { from{transform:translateX(0)} to{transform:translateX(calc(-50% - .9rem))} }
+    .testi-card { min-width:360px; max-width:360px; padding:2.2rem; border:1px solid var(--line); background:rgba(255,255,255,.018); flex-shrink:0; transition:border-color .3s; }
+    .testi-card:hover { border-color:var(--gold); }
+    .testi-stars  { display:flex; gap:.2rem; color:var(--gold); margin-bottom:1.2rem; }
+    .testi-quote  { font-family:'Playfair Display',serif; font-size:.96rem; line-height:1.72; color:rgba(245,242,235,.75); margin-bottom:1.8rem; }
+    .testi-author { display:flex; align-items:center; gap:.9rem; }
+    .testi-avatar { width:42px; height:42px; border-radius:50%; background:linear-gradient(135deg,var(--gold) 0%,var(--red) 100%); display:flex; align-items:center; justify-content:center; font-family:'Playfair Display',serif; font-size:.95rem; font-weight:700; color:var(--ink); flex-shrink:0; }
+    .testi-name   { font-family:'Syne',sans-serif; font-size:.82rem; font-weight:700; color:var(--white); }
+    .testi-role   { font-size:.72rem; color:var(--muted); margin-top:.15rem; }
+
+    /* ── CTA ── */
+    .cta-banner { padding:8rem 4rem; text-align:center; position:relative; overflow:hidden; }
+    .cta-banner::before { content:''; position:absolute; inset:0; background:linear-gradient(135deg,rgba(201,168,76,.07) 0%,rgba(181,52,30,.05) 100%); }
+    .cta-bg-icon { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); opacity:.025; color:var(--white); pointer-events:none; }
+    .cta-banner-title { font-family:'Playfair Display',serif; font-size:clamp(2.4rem,5vw,5rem); font-weight:900; position:relative; z-index:2; line-height:1.08; }
+    .cta-banner-title em { font-style:italic; color:var(--gold); }
+    .cta-sub  { font-size:.98rem; color:rgba(245,242,235,.58); max-width:480px; margin:1.5rem auto 0; position:relative; z-index:2; line-height:1.7; }
+    .cta-actions { display:flex; flex-wrap:wrap; gap:1.2rem; justify-content:center; position:relative; z-index:2; margin-top:2.8rem; }
+
+    /* ── Footer ── */
+    footer { border-top:1px solid var(--line); padding:5rem 4rem 2.5rem; }
+    .footer-top { display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:3.5rem; margin-bottom:3.5rem; }
+    .footer-brand-name { font-family:'Playfair Display',serif; font-size:1.2rem; font-weight:700; margin-bottom:.9rem; }
+    .footer-brand-name span { color:var(--gold); }
+    .footer-desc { font-size:.85rem; color:var(--muted); line-height:1.75; max-width:270px; }
+    .footer-contact { margin-top:1.2rem; display:flex; flex-direction:column; gap:.6rem; }
+    .footer-contact-item { display:flex; align-items:center; gap:.55rem; font-size:.83rem; color:var(--muted); }
+    .footer-contact-item svg { color:var(--gold); flex-shrink:0; }
+    .footer-col-title { font-family:'Syne',sans-serif; font-size:.67rem; font-weight:700; letter-spacing:.2em; text-transform:uppercase; color:var(--gold); margin-bottom:1.4rem; }
+    .footer-links { list-style:none; display:flex; flex-direction:column; gap:.7rem; }
+    .footer-links a { font-size:.85rem; color:var(--muted); text-decoration:none; cursor:pointer; transition:color .3s; display:flex; align-items:center; gap:.4rem; }
+    .footer-links a:hover { color:var(--white); }
+    .footer-links a::before { content:''; width:10px; height:1px; background:var(--line); transition:background .3s,width .3s; }
+    .footer-links a:hover::before { background:var(--gold); width:14px; }
+    .footer-bottom { display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--line); padding-top:1.8rem; flex-wrap:wrap; gap:1rem; }
+    .footer-copy { font-size:.78rem; color:var(--muted); }
+    .footer-socials { display:flex; gap:1rem; }
+    .soc-btn { width:36px; height:36px; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; color:var(--muted); cursor:pointer; transition:all .3s; text-decoration:none; }
+    .soc-btn:hover { border-color:var(--gold); color:var(--gold); background:rgba(201,168,76,.06); }
+
+    /* ══════════════ RESPONSIVE ══════════════ */
+    @media (max-width:1100px) {
+      nav { padding:0 2.5rem; }
+      .hero { padding:calc(var(--nav-h)+3rem) 2.5rem 5rem; }
+      .hero-stats { right:2.5rem; }
+      .about,.programs,.campus,.achievements,.testimonials,.cta-banner { padding:6rem 2.5rem; }
+      footer { padding:4rem 2.5rem 2rem; }
+    }
+
+    @media (max-width:900px) {
+      .nav-links { display:none; }
+      .hamburger { display:flex; }  
+      .hero-stats { display:none; }
+      .about { grid-template-columns:1fr; gap:3.5rem; }
+      .about-visual { height:320px; }
+      .about-features { grid-template-columns:1fr 1fr; }
+      .programs-grid { grid-template-columns:1fr 1fr; }
+      .campus-grid { grid-template-columns:1fr 1fr; height:auto; }
+      .campus-card:nth-child(1) { grid-row:span 1; grid-column:span 2; height:260px; }
+      .campus-card { height:180px; }
+      .ach-grid { grid-template-columns:repeat(4,1fr); gap:1.5rem; }
+      .footer-top { grid-template-columns:1fr 1fr; gap:2.5rem; }
+    }
+
+    @media (max-width:640px) {
+      nav { padding:0 1.25rem; }
+      .hero { padding:calc(var(--nav-h)+2rem) 1.25rem 4rem; }
+      .hero-title { font-size:clamp(2.4rem,12vw,4rem); }
+      .hero-actions { gap:.9rem; }
+      .btn-primary,.btn-outline { padding:.8rem 1.6rem; font-size:.7rem; }
+      .about,.programs,.campus,.achievements,.testimonials,.cta-banner { padding:4.5rem 1.25rem; }
+      .about-visual { height:260px; }
+      .about-badge { width:130px; padding:1.3rem; }
+      .about-badge-num { font-size:2rem; }
+      .about-features { grid-template-columns:1fr; }
+      .programs-header { flex-direction:column; align-items:flex-start; }
+      .programs-grid { grid-template-columns:1fr; }
+      .campus-grid { grid-template-columns:1fr; height:auto; }
+      .campus-card:nth-child(1) { grid-column:span 1; height:220px; }
+      .campus-card { height:160px; }
+      .ach-grid { grid-template-columns:1fr 1fr; gap:2rem; }
+      .ach-inner { padding:2.5rem 1.5rem; }
+      .testi-card { min-width:300px; max-width:300px; }
+      .footer-top { grid-template-columns:1fr; gap:2rem; }
+      .footer-desc { max-width:100%; }
+      footer { padding:3.5rem 1.25rem 2rem; }
+      .footer-bottom { flex-direction:column; align-items:flex-start; }
+    }
+  `}</style>
+);
+
+/* ─── Navbar ─────────────────────────────────────────────────────────────── */
+const Nav = () => {
+  const [scrolled, setScrolled] = useState(false);
+  const [open,     setOpen]     = useState(false);
+  useEffect(() => {
+    const fn = () => setScrolled(window.scrollY > 55);
+    window.addEventListener("scroll", fn);
+    return () => window.removeEventListener("scroll", fn);
+  }, []);
+  const links = ["About","Programs","Campus","Research","Admissions","Contact"];
+  return (
+    <>
+      <nav className={scrolled ? "scrolled" : ""}>
+        <a href="#" className="nav-logo">Rayat <span>Bahra</span> University</a>
+        <ul className="nav-links">
+          {links.map(l => <li key={l}><a href={`#${l.toLowerCase()}`}>{l}</a></li>)}
+        </ul>
+        <div className="nav-right">
+          <button className="nav-cta">Apply Now</button>
+          <button
+            className={`hamburger ${open ? "active" : ""}`}
+            onClick={() => setOpen(o => !o)}
+            aria-label="Toggle menu"
+          >
+            <span className="ham-line ham-line-1"/>
+            <span className="ham-line ham-line-2"/>
+          </button>
+        </div>
+      </nav>
+      <div className={`mobile-menu ${open ? "open":""}`}>
+        {links.map(l => (
+          <a key={l} href={`#${l.toLowerCase()}`} onClick={() => setOpen(false)}>{l}</a>
+        ))}
+        <button className="btn-primary" style={{border:"none"}}>Apply Now</button>
+      </div>
+    </>
+  );
+};
+
+/* ─── Marquee ────────────────────────────────────────────────────────────── */
+const Marquee = () => {
+  const items = [
+    "NAAC Accredited","25+ Years of Excellence","10,000+ Alumni",
+    "50+ Programs","State-of-Art Infrastructure","95% Placement Rate",
+    "International Collaborations","Research & Innovation Hub",
+  ];
+  const doubled = [...items, ...items];
+  return (
+    <div className="marquee-wrap">
+      <div className="marquee-track">
+        {doubled.map((t,i) => (
+          <div className="marquee-item" key={i}>
+            {t}
+            <span className="marquee-sep"><Star size={8} fill="currentColor"/></span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+/* ─── Hero ───────────────────────────────────────────────────────────────── */
+const Hero = () => (
+  <section className="hero" id="home">
+    <div className="hero-bg"/><div className="hero-grid"/>
+    <div className="hero-glow"/><div className="hero-glow2"/>
+
+    <div className="hero-eyebrow">Hoshiarpur, Punjab — Est. 2001</div>
+    <h1 className="hero-title">
+      <span>Shaping</span>
+      <em>Futures,</em>
+      <span className="out">Inspiring</span>
+      <span>Minds.</span>
+    </h1>
+    <p className="hero-sub">
+      A premier institution of higher learning committed to academic excellence,
+      innovation, and holistic development for the leaders of tomorrow.
+    </p>
+    <div className="hero-actions">
+      <a href="#programs" className="btn-primary">
+        Explore Programs <ArrowUpRight size={15}/>
+      </a>
+      <a href="#about" className="btn-outline">
+        Our Story <ChevronDown size={15}/>
+      </a>
+    </div>
+
+    <div className="hero-stats">
+      {[{n:"50+",l:"Programs"},{n:"10K+",l:"Alumni"},{n:"95%",l:"Placements"},{n:"25+",l:"Yrs Legacy"}].map(s => (
+        <div className="stat-item" key={s.l}>
+          <div className="stat-num">{s.n}</div>
+          <div className="stat-label">{s.l}</div>
+          <div className="stat-div"/>
+        </div>
+      ))}
+    </div>
+
+    <div className="scroll-hint">
+      <div className="scroll-line"/>
+      <span className="scroll-text">Scroll</span>
+    </div>
+  </section>
+);
+
+/* ─── About ──────────────────────────────────────────────────────────────── */
+const About = () => (
+  <section className="about" id="about">
+    <div className="about-visual">
+      <div className="about-img-main">
+        <div className="about-pattern"/>
+        <div className="about-center-icon"><Landmark size={120} strokeWidth={.8}/></div>
+      </div>
+      <div className="about-badge">
+        <div className="about-badge-num">25+</div>
+        <div className="about-badge-text">Years of Excellence</div>
+      </div>
+    </div>
+    <div>
+      <div className="section-label">About the University</div>
+      <h2 className="section-title">Where Knowledge Meets <em>Ambition</em></h2>
+      <p className="about-text">
+        Rayat Bahra Professional University, Hoshiarpur stands as a beacon of academic
+        excellence in the heart of Punjab. Founded with a vision to provide world-class
+        professional education, we nurture talent, foster innovation, and shape industry-ready graduates.
+      </p>
+      <div className="about-features">
+        {[
+          { Icon:GraduationCap, title:"Academic Excellence", text:"Rigorous curriculum designed with industry leaders" },
+          { Icon:FlaskConical,  title:"Research Focus",      text:"State-of-the-art labs and dedicated research centres" },
+          { Icon:Globe,         title:"Global Exposure",     text:"International collaborations and exchange programs" },
+          { Icon:Briefcase,     title:"Career Ready",        text:"Strong industry partnerships ensuring top placements" },
+        ].map(({Icon,title,text}) => (
+          <div className="about-feat" key={title}>
+            <div className="about-feat-icon"><Icon size={22} strokeWidth={1.5}/></div>
+            <div className="about-feat-title">{title}</div>
+            <div className="about-feat-text">{text}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+);
+
+/* ─── Programs ───────────────────────────────────────────────────────────── */
+const PROGRAMS = [
+  { Icon:Binary,      title:"Engineering & Technology", desc:"B.Tech, M.Tech and Ph.D programs in Computer Science, ECE, Mechanical, Civil and more with cutting-edge lab infrastructure.", tags:["B.Tech","M.Tech","Ph.D"] },
+  { Icon:BarChart3,   title:"Management & Business",    desc:"MBA and BBA programs crafted with real-world case studies, industry immersions and global business simulations.", tags:["MBA","BBA","PGDM"] },
+  { Icon:Stethoscope, title:"Pharmacy & Health Sci.",   desc:"Comprehensive B.Pharm and M.Pharm focused on pharmaceutical research and clinical drug development.", tags:["B.Pharm","M.Pharm","D.Pharm"] },
+  { Icon:Scale,       title:"Law & Legal Studies",      desc:"LLB and LLM programs with moot courts, legal clinics and exposure to top-tier law firms.", tags:["LLB","LLM","BA LLB"] },
+  { Icon:Cpu,         title:"Computer Applications",    desc:"BCA and MCA programs building next-gen software developers with hands-on project experience.", tags:["BCA","MCA","B.Sc CS"] },
+  { Icon:Wheat,       title:"Agriculture & Sciences",   desc:"Modern agri programs integrating precision technology with sustainable farming practices.", tags:["B.Sc Agri","B.Sc Biotech","M.Sc"] },
+];
+
+const Programs = () => (
+  <section className="programs" id="programs">
+    <div className="programs-header">
+      <div>
+        <div className="section-label">Academic Offerings</div>
+        <h2 className="section-title">Programs That <em>Redefine</em> Careers</h2>
+      </div>
+      <a href="#" className="btn-outline">View All <ArrowUpRight size={14}/></a>
+    </div>
+    <div className="programs-grid">
+      {PROGRAMS.map(({Icon,title,desc,tags}) => (
+        <div className="program-card" key={title}>
+          <div className="prog-icon"><Icon size={32} strokeWidth={1.2}/></div>
+          <div className="program-title">{title}</div>
+          <div className="program-desc">{desc}</div>
+          <div className="program-tags">{tags.map(t => <span className="program-tag" key={t}>{t}</span>)}</div>
+          <span className="prog-arrow"><ArrowUpRight size={18}/></span>
+        </div>
+      ))}
+    </div>
+  </section>
+);
+
+/* ─── Campus ─────────────────────────────────────────────────────────────── */
+const CAMPUS = [
+  { Icon:Dumbbell, BgIcon:Dumbbell, title:"Sports Complex",   sub:"Olympic-grade facilities across 15 acres" },
+  { Icon:Library,  BgIcon:Library,  title:"Central Library",  sub:"200,000+ volumes & digital archive" },
+  { Icon:Coffee,   BgIcon:Coffee,   title:"Food Courts",      sub:"Multi-cuisine dining for 3,000+" },
+  { Icon:Lightbulb,BgIcon:Lightbulb,title:"Innovation Lab",   sub:"Startup incubation & maker space" },
+  { Icon:Theater,  BgIcon:Theater,  title:"Auditorium",       sub:"2,000-seat cultural arena" },
+];
+
+const Campus = () => (
+  <section className="campus" id="campus">
+    <div className="section-label">Campus Life</div>
+    <h2 className="section-title">A Campus Like <em>No Other</em></h2>
+    <div className="campus-grid">
+      {CAMPUS.map(({Icon,BgIcon,title,sub}) => (
+        <div className="campus-card" key={title}>
+          <div className="campus-bg-icon"><BgIcon size={160} strokeWidth={.4}/></div>
+          <div className="campus-overlay"/>
+          <div className="campus-card-icon"><Icon size={18} strokeWidth={1.5}/></div>
+          <div className="campus-card-title">{title}</div>
+          <div className="campus-card-sub">{sub}</div>
+        </div>
+      ))}
+    </div>
+  </section>
+);
+
+/* ─── Achievements ───────────────────────────────────────────────────────── */
+const ACH = [
+  { Icon:Users,      n:"10,000+", l:"Alumni Worldwide" },
+  { Icon:GraduationCap,n:"500+",  l:"Expert Faculty" },
+  { Icon:TrendingUp, n:"95%",     l:"Placement Rate" },
+  { Icon:FileText,   n:"200+",    l:"Research Papers" },
+  { Icon:Handshake,  n:"50+",     l:"Industry Partners" },
+  { Icon:ShieldCheck,n:"NAAC",    l:"Accredited" },
+  { Icon:Clock,      n:"25+",     l:"Years of Legacy" },
+  { Icon:Globe,      n:"15+",     l:"International MoUs" },
+];
+
+const Achievements = () => (
+  <section className="achievements" id="research">
+    <div className="ach-inner">
+      <div className="ach-quote-bg">"</div>
+      <div className="section-label">Our Impact</div>
+      <h2 className="section-title">Numbers That Speak <em>Louder</em></h2>
+      <div className="ach-grid">
+        {ACH.map(({Icon,n,l}) => (
+          <div className="ach-item" key={l}>
+            <div className="ach-icon"><Icon size={22} strokeWidth={1.4}/></div>
+            <div className="ach-num">{n}</div>
+            <div className="ach-label">{l}</div>
+            <div className="ach-div"/>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+);
+
+/* ─── Testimonials ───────────────────────────────────────────────────────── */
+const TESTI = [
+  { q:"Rayat Bahra gave me the foundation to build a successful career in software engineering. The faculty and infrastructure are truly world-class.", name:"Arjun Sharma",  role:"Software Engineer — TCS",       init:"AS" },
+  { q:"The MBA program here transformed my thinking completely. Real-world exposure and mentorship made me industry-ready from day one.",             name:"Priya Mehta",   role:"Product Manager — Infosys",     init:"PM" },
+  { q:"Excellent research facilities and a supportive environment helped me publish my first paper during M.Tech itself.",                            name:"Rahul Verma",   role:"Research Scientist — DRDO",     init:"RV" },
+  { q:"The placement cell worked tirelessly to get me into my dream company. Forever grateful to RBPU.",                                             name:"Simran Kaur",   role:"Finance Analyst — Deloitte",    init:"SK" },
+  { q:"Campus life is vibrant and enriching. Sports, cultural events, and clubs made my four years truly unforgettable.",                            name:"Amit Singh",    role:"Entrepreneur & Alumnus",        init:"AS" },
+];
+
+const Testimonials = () => {
+  const doubled = [...TESTI, ...TESTI];
+  return (
+    <section className="testimonials">
+      <div className="testi-header">
+        <div className="section-label">Student Stories</div>
+        <h2 className="section-title">Voices of <em>Excellence</em></h2>
+      </div>
+      <div style={{overflow:"hidden"}}>
+        <div className="testi-track">
+          {doubled.map((t,i) => (
+            <div className="testi-card" key={i}>
+              <div className="testi-stars">
+                {[...Array(5)].map((_,j) => <Star key={j} size={12} fill="currentColor"/>)}
+              </div>
+              <p className="testi-quote">"{t.q}"</p>
+              <div className="testi-author">
+                <div className="testi-avatar">{t.init}</div>
+                <div>
+                  <div className="testi-name">{t.name}</div>
+                  <div className="testi-role">{t.role}</div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+/* ─── CTA Banner ─────────────────────────────────────────────────────────── */
+const CTABanner = () => (
+  <section className="cta-banner" id="admissions">
+    <div className="cta-bg-icon"><Award size={600} strokeWidth={.2}/></div>
+    <h2 className="cta-banner-title">
+      Begin Your<br/><em>Journey</em><br/>With Us
+    </h2>
+    <p className="cta-sub">
+      Admissions open for 2024–25. Secure your seat in one of Punjab's finest universities.
+    </p>
+    <div className="cta-actions">
+      <a href="#" className="btn-primary">Apply for Admission <ArrowUpRight size={15}/></a>
+      <a href="#" className="btn-outline">Download Prospectus <FileText size={15}/></a>
+    </div>
+  </section>
+);
+
+/* ─── Footer ─────────────────────────────────────────────────────────────── */
+const Footer = () => (
+  <footer id="contact">
+    <div className="footer-top">
+      <div>
+        <div className="footer-brand-name">Rayat <span>Bahra</span><br/>Professional University</div>
+        <p className="footer-desc">
+          Committed to academic excellence and holistic development since 1997, shaping leaders for a better tomorrow.
+        </p>
+        <div className="footer-contact">
+          <div className="footer-contact-item"><MapPin size={14}/> Vill. Sahauran, SAS Nagar (Mohali), Punjab</div>
+          <div className="footer-contact-item"><Phone size={14}/> +91-1882-264400</div>
+          <div className="footer-contact-item"><Mail size={14}/>  info@rayatbahrauniversity.edu.in</div>
+        </div>
+      </div>
+      {[
+        { title:"Programs",    links:["Engineering","Management","Pharmacy","Law","Sciences","Agriculture"] },
+        { title:"University",  links:["About Us","Faculty","Research","Library","Placements","Alumni"] },
+        { title:"Quick Links", links:["Admissions","Fee Structure","Scholarships","Downloads","E-Learning","Campus Map"] },
+      ].map(col => (
+        <div key={col.title}>
+          <div className="footer-col-title">{col.title}</div>
+          <ul className="footer-links">
+            {col.links.map(l => <li key={l}><a href="#">{l}</a></li>)}
+          </ul>
+        </div>
+      ))}
+    </div>
+    <div className="footer-bottom">
+      <span className="footer-copy">© 2024 Rayat Bahra Professional University. All rights reserved.</span>
+      <div className="footer-socials">
+        {[
+          {Icon:Facebook,  label:"Facebook"},
+          {Icon:Instagram, label:"Instagram"},
+          {Icon:Twitter,   label:"Twitter"},
+          {Icon:Linkedin,  label:"LinkedIn"},
+          {Icon:Youtube,   label:"YouTube"},
+        ].map(({Icon,label}) => (
+          <a className="soc-btn" href="#" key={label} title={label}>
+            <Icon size={15}/>
+          </a>
+        ))}
+      </div>
+    </div>
+  </footer>
+);
+
+/* ─── App ─────────────────────────────────────────────────────────────────── */
+export default function App() {
+  return (
+    <>
+      <GlobalStyles/>
+      <div className="noise"/>
+      <Nav/>
+      <main>
+        <Hero/>
+        <Marquee/>
+        <About/>
+        <Programs/>
+        <Campus/>
+        <Achievements/>
+        <Testimonials/>
+        <CTABanner/>
+      </main>
+      <Footer/>
+    </>
+  );
+}
